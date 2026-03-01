@@ -1,0 +1,102 @@
+name: "MCPhound MCP Security Scanner"
+description: "Scan MCP server configurations for security vulnerabilities and attack paths"
+author: "MCPhound"
+
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  api_token:
+    description: "MCPhound API token (store as repository secret)"
+    required: true
+  config_path:
+    description: "Path to MCP config file"
+    required: false
+    default: ".cursor/mcp.json"
+  fail_on:
+    description: "Minimum severity to fail the check (critical|high|medium|low|none)"
+    required: false
+    default: "critical"
+  api_url:
+    description: "MCPhound API URL"
+    required: false
+    default: "https://mcphound-api.fly.dev"
+  mode:
+    description: "Scan mode"
+    required: false
+    default: "ci"
+  timeout_seconds:
+    description: "API request timeout"
+    required: false
+    default: "120"
+  category:
+    description: "SARIF category for Code Scanning"
+    required: false
+    default: "mcphound"
+
+outputs:
+  sarif_file:
+    description: "Path to the SARIF results file"
+    value: ${{ steps.scan.outputs.sarif_file }}
+  findings_count:
+    description: "Number of security findings"
+    value: ${{ steps.scan.outputs.findings_count }}
+  max_severity:
+    description: "Highest severity level found"
+    value: ${{ steps.scan.outputs.max_severity }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run MCPhound scan
+      id: scan
+      shell: bash
+      run: ${{ github.action_path }}/action/scan.sh
+      env:
+        INPUT_API_TOKEN: ${{ inputs.api_token }}
+        INPUT_CONFIG_PATH: ${{ inputs.config_path }}
+        INPUT_FAIL_ON: ${{ inputs.fail_on }}
+        INPUT_API_URL: ${{ inputs.api_url }}
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
+
+    - name: Upload SARIF to GitHub Code Scanning
+      if: ${{ always() && steps.scan.outputs.sarif_file != '' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarif_file }}
+        category: ${{ inputs.category }}
+
+    - name: Check severity threshold
+      if: ${{ always() && steps.scan.outputs.max_severity != '' }}
+      shell: python3 {0}
+      run: |
+        import sys
+
+        severity_order = {
+            "none": 0,
+            "note": 1,
+            "low": 1,
+            "warning": 2,
+            "medium": 2,
+            "high": 3,
+            "error": 3,
+            "critical": 4,
+        }
+
+        fail_on = "${{ inputs.fail_on }}".lower()
+        max_severity = "${{ steps.scan.outputs.max_severity }}".lower()
+
+        if fail_on == "none":
+            print(f"fail_on=none — skipping threshold check (max severity: {max_severity})")
+            sys.exit(0)
+
+        fail_threshold = severity_order.get(fail_on, 4)
+        found_level = severity_order.get(max_severity, 0)
+
+        if found_level >= fail_threshold:
+            print(f"::error::MCPhound found {max_severity} severity findings (threshold: {fail_on})")
+            sys.exit(1)
+        else:
+            print(f"MCPhound scan passed — max severity {max_severity} is below {fail_on} threshold")

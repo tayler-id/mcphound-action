@@ -1,0 +1,21 @@
+# Example workflow — copy into your repo at .github/workflows/mcphound.yml
+name: MCPhound Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mcphound/mcphound-action@v1
+        with:
+          api_token: ${{ secrets.MCPHOUND_API_TOKEN }}
