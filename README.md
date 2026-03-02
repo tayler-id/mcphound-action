@@ -6,11 +6,16 @@ MCPhound detects dangerous permission combinations, cross-server attack vectors,
 
 
 
+## Getting a Token
+
+1. Visit [mcphound.fly.dev/ci/setup](https://mcphound.fly.dev/ci/setup)
+2. Click **Generate Token** (label is optional)
+3. Copy the token immediately — it's shown once
+4. Add it as a GitHub Actions secret named `MCPHOUND_API_TOKEN`
+
 ## Quick Start
 
-1. Request an API token — [open an issue](https://github.com/tayler-id/mcphound-action/issues/new?title=Token+request&labels=token-request) or email mcphound@tayler.id
-2. Add it as a repository secret named `MCPHOUND_API_TOKEN`
-3. Create `.github/workflows/mcphound.yml`:
+Create `.github/workflows/mcphound.yml`:
 
 ```yaml
 name: MCPhound Security Scan
