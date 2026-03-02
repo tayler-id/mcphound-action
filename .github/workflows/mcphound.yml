@@ -16,6 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: mcphound/mcphound-action@v1
+      - uses: tayler-id/mcphound-action@v0
         with:
           api_token: ${{ secrets.MCPHOUND_API_TOKEN }}

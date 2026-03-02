@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: mcphound/mcphound-action@v1
+      - uses: tayler-id/mcphound-action@v0
         with:
           api_token: ${{ secrets.MCPHOUND_API_TOKEN }}
 ```
@@ -58,7 +58,7 @@ jobs:
 ### Custom config path
 
 ```yaml
-- uses: mcphound/mcphound-action@v1
+- uses: tayler-id/mcphound-action@v0
   with:
     api_token: ${{ secrets.MCPHOUND_API_TOKEN }}
     config_path: "config/mcp-servers.json"
@@ -67,7 +67,7 @@ jobs:
 ### Fail on high severity or above
 
 ```yaml
-- uses: mcphound/mcphound-action@v1
+- uses: tayler-id/mcphound-action@v0
   with:
     api_token: ${{ secrets.MCPHOUND_API_TOKEN }}
     fail_on: "high"
@@ -76,7 +76,7 @@ jobs:
 ### Never fail the build (report only)
 
 ```yaml
-- uses: mcphound/mcphound-action@v1
+- uses: tayler-id/mcphound-action@v0
   with:
     api_token: ${{ secrets.MCPHOUND_API_TOKEN }}
     fail_on: "none"
@@ -85,7 +85,7 @@ jobs:
 ### Use scan outputs in subsequent steps
 
 ```yaml
-- uses: mcphound/mcphound-action@v1
+- uses: tayler-id/mcphound-action@v0
   id: mcphound
   with:
     api_token: ${{ secrets.MCPHOUND_API_TOKEN }}

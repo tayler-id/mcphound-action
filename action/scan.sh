@@ -44,11 +44,11 @@ fi
 echo "Using MCP config: ${config_path}"
 config_content=$(cat "$config_path")
 
-# ── Build request payload ────────────────────────────────────────
-payload=$(jq -n \
-  --argjson config "$config_content" \
-  --arg mode "${INPUT_MODE:-ci}" \
-  '{config: $config, mode: $mode}')
+# ── Validate JSON ────────────────────────────────────────────────
+if ! echo "$config_content" | jq empty 2>/dev/null; then
+  echo "::error::MCP config file is not valid JSON: ${config_path}"
+  exit 1
+fi
 
 # ── API call with retry ──────────────────────────────────────────
 api_url="${INPUT_API_URL:-https://mcphound-api.fly.dev}"
@@ -74,7 +74,7 @@ while (( attempt < max_attempts )); do
     -X POST "$endpoint" \
     -H "Authorization: Bearer ${INPUT_API_TOKEN}" \
     -H "Content-Type: application/json" \
-    -d "$payload" \
+    -d "$config_content" \
   ) || {
     echo "::warning::Network error on attempt ${attempt}"
     rm -f "$response_file"
@@ -116,17 +116,24 @@ while (( attempt < max_attempts )); do
   fi
 done
 
-# ── Save SARIF ───────────────────────────────────────────────────
-echo "$response" > "$sarif_output"
+# ── Extract SARIF from JSend wrapper ─────────────────────────────
+# API returns {"status": "success", "data": <sarif>}
+sarif=$(echo "$response" | jq '.data // empty')
+if [[ -z "$sarif" || "$sarif" == "null" ]]; then
+  echo "::error::MCPhound API response missing SARIF data"
+  echo "$response" | head -c 500
+  exit 1
+fi
+
+echo "$sarif" > "$sarif_output"
 echo "SARIF saved to ${sarif_output}"
 
 # ── Parse results ────────────────────────────────────────────────
-findings_count=$(echo "$response" | jq '[.runs[]?.results[]?] | length')
+findings_count=$(echo "$sarif" | jq '[.runs[]?.results[]?] | length')
 max_severity="none"
 
 # SARIF uses "error", "warning", "note" levels
-# Map them to human-friendly names for the output
-sarif_max=$(echo "$response" | jq -r '
+sarif_max=$(echo "$sarif" | jq -r '
   [.runs[]?.results[]?.level // empty] |
   if any(. == "error") then "error"
   elif any(. == "warning") then "warning"
