@@ -8,7 +8,7 @@ MCPhound detects dangerous permission combinations, cross-server attack vectors,
 
 ## Getting a Token
 
-1. Visit [mcphound.fly.dev/ci/setup](https://mcphound.fly.dev/ci/setup)
+1. Visit [mcphound.ai/ci/setup](https://mcphound.ai/ci/setup)
 2. Click **Generate Token** (label is optional)
 3. Copy the token immediately — it's shown once
 4. Add it as a GitHub Actions secret named `MCPHOUND_API_TOKEN`
