@@ -6,7 +6,7 @@ MCPhound detects dangerous permission combinations, cross-server attack vectors,
 
 ## Quick Start
 
-1. Get an API token at [mcphound.dev](https://mcphound.dev)
+1. Request an API token — [open an issue](https://github.com/tayler-id/mcphound-action/issues/new?title=Token+request&labels=token-request) or email mcphound@tayler.id
 2. Add it as a repository secret named `MCPHOUND_API_TOKEN`
 3. Create `.github/workflows/mcphound.yml`:
 
