@@ -4,6 +4,8 @@ A GitHub Action that scans your MCP (Model Context Protocol) server configuratio
 
 MCPhound detects dangerous permission combinations, cross-server attack vectors, and known CVEs across your MCP setup — then uploads the results as SARIF to GitHub Code Scanning.
 
+[![MCPhound](https://api.mcphound.com/api/v1/scans/3f230068-a336-4fbd-8e2a-ffe0fe065033/badge.svg)](https://mcphound.ai/scans/3f230068-a336-4fbd-8e2a-ffe0fe065033)
+
 ## Quick Start
 
 1. Request an API token — [open an issue](https://github.com/tayler-id/mcphound-action/issues/new?title=Token+request&labels=token-request) or email mcphound@tayler.id
