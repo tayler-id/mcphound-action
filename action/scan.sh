@@ -22,6 +22,9 @@ if [[ -z "${INPUT_API_TOKEN:-}" ]]; then
   exit 1
 fi
 
+# Mask the token so it never appears in GitHub Actions logs
+echo "::add-mask::${INPUT_API_TOKEN}"
+
 # ── Locate config file ───────────────────────────────────────────
 config_path="${INPUT_CONFIG_PATH:-.cursor/mcp.json}"
 
